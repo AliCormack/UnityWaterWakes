@@ -92,6 +92,45 @@ public class WaterWakes : MonoBehaviour {
             MoveWater(0.02f);
             updateTimer = 0;
         }
+
+        CreateWaterWakesWithMouse();
+
+    }
+
+    void CreateWaterWakesWithMouse()
+    {
+        //Fire ray from the current mouse position
+        if ( Input.GetKey(KeyCode.Mouse0) )
+        {
+            RaycastHit hit;
+            if ( Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit) )
+            {
+
+                //Convert the mouse position from global to local
+                Vector3 localPos = transform.InverseTransformPoint(hit.point);
+
+                //Loop through all the vertices of the water mesh
+                for ( int j = 0; j < arrayLength; j++ )
+                {
+                    for ( int i = 0; i < arrayLength; i++ )
+                    {
+                        //Find the closest vertice within a certain distance from the mouse
+                        float sqrDistanceToVertice = (height[j][i] - localPos).sqrMagnitude;
+
+                        //If the vertice is within a certain range
+                        float sqrDistance = 0.2f * 0.2f;
+                        if ( sqrDistanceToVertice < sqrDistance )
+                        {
+                            //Get a smaller value the greater the distance is to make it look better
+                            float distanceCompensator = 1 - (sqrDistanceToVertice / sqrDistance);
+
+                            //Add the force that now depends on how far the vertice is from the mouse
+                            source[j][i].y += -0.02f * distanceCompensator;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     void MoveWater(float dt)
